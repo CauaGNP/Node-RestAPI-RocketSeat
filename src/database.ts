@@ -6,7 +6,7 @@ export const config : Knex.Config ={
     connection : {
         filename : env.DATABASE_URL,
     },
-    useNullAsDefault : true,
+    useNullAsDefault: true,
     migrations : {
         extension : "ts",
         directory : "./db/migrations",
