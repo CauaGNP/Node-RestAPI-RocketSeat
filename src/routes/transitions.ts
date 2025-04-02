@@ -3,40 +3,40 @@ import { z } from "zod";
 import { randomUUID } from "node:crypto"
 import { knexInstance } from "../database"; 
 import { checkSessionExist } from "../middleware/check-session-id-exist";
-import { request } from "node:http";
 
 export async function transitionRoutes(app : FastifyInstance) {
     app.get("/",{
         preHandler : [checkSessionExist],
-    },async (request, reply ) => {
-        const { session_id } = request.cookies; 
-        const transactions = await knexInstance("transictions").where("session_id", session_id).select();
-
+    },async (request) => {
+        const sessionId = request.cookies.sessionId;  
+        const transactions = await knexInstance("transictions").where("session_id", sessionId).select();
+        
         return { transactions };
     });
 
     app.get("/:id",{
-        preHandler : [checkSessionExist]
+        preHandler : [checkSessionExist],
     },async (request) => {
         const getTransactionsParamsSchema = z.object({
             id : z.string().uuid(),
         })
 
         const { id } = getTransactionsParamsSchema.parse(request.params);
-        const { session_id } = request.cookies;
+        const { sessionId } = request.cookies;
 
-        const transactions = await knexInstance("transictions").where({
+        const transaction = await knexInstance("transictions").where({
+            session_id : sessionId,
             id,
-            "session_id" : session_id,
         }).first();
-        return { transactions };
+
+        return { transaction };
     });
 
     app.get("/summary",{
         preHandler : [checkSessionExist]
     },async (request)=> {
-        const { session_id } = request.cookies;
-        const sumary = await knexInstance("transictions").where("session_id", session_id).sum("amount", { as : "amount" }).first();
+        const { sessionId } = request.cookies;
+        const sumary = await knexInstance("transictions").where("session_id", sessionId).sum("amount", { as : "amount" }).first();
 
         return { sumary };
     });

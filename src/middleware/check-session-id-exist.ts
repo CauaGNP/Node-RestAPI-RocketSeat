@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 
-export function checkSessionExist(request : FastifyRequest, reply : FastifyReply){
-    const { sessionId } = request.cookies;
+export async function checkSessionExist(request : FastifyRequest, reply : FastifyReply){
+    const sessionId = request.cookies.sessionId;
 
     if(!sessionId){
         return reply.status(401).send({
